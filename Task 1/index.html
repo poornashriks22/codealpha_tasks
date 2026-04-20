@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashFlow | By POORNA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <h1>FlashFlow <span>SmartCards</span></h1>
+            <div class="header-actions">
+                <button id="theme-toggle" class="icon-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="add-card-btn" class="btn-primary">
+                    <i class="fas fa-plus"></i> Add Card
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="deck-info">
+            <span id="card-index">0 of 0</span>
+            <div class="progress-bar">
+                <div id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="card-container">
+            <div class="flashcard" id="flashcard">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="card-controls">
+                            <button onclick="editCurrentCard()"><i class="fas fa-pen"></i></button>
+                            <button onclick="deleteCurrentCard()" class="delete-btn"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <p id="question-text">No cards available</p>
+                    </div>
+                    <div class="card-back">
+                        <p id="answer-text">Add a card to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button id="prev-btn" class="btn-nav" disabled><i class="fas fa-chevron-left"></i></button>
+            <button id="flip-btn" class="btn-main">Show Answer</button>
+            <button id="next-btn" class="btn-nav" disabled><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <button id="shuffle-btn" class="btn-secondary">Shuffle Deck</button>
+    </main>
+
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h2 id="modal-title">Create Flashcard</h2>
+            <div class="input-group">
+                <label>Question</label>
+                <textarea id="question-input" rows="3" placeholder="What is the capital of France?"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Answer</label>
+                <textarea id="answer-input" rows="3" placeholder="Paris"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button id="modal-cancel" class="btn-secondary">Cancel</button>
+                <button id="modal-save" class="btn-primary">Save Flashcard</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Action Successful!</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
