@@ -1,0 +1,466 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Poorna's LexiNook</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- ════════ FLOATING BACKGROUND ICONS ════════ -->
+<div class="floating-icons" aria-hidden="true">
+  <span class="float-icon fi-1">🌸</span>
+  <span class="float-icon fi-2">📚</span>
+  <span class="float-icon fi-3">💬</span>
+  <span class="float-icon fi-4">✨</span>
+  <span class="float-icon fi-5">🌍</span>
+  <span class="float-icon fi-6">ABC</span>
+  <span class="float-icon fi-7">🎯</span>
+  <span class="float-icon fi-8">💡</span>
+</div>
+
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-icon">✨</span>
+    <span class="logo-text">Poorna's LexiNook</span>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" data-page="dashboard" onclick="navigateTo('dashboard',this)">
+      <i class="fas fa-home"></i><span>Dashboard</span>
+    </button>
+    <button class="nav-btn" data-page="learn" onclick="navigateTo('learn',this)">
+      <i class="fas fa-book-open"></i><span>Learn</span>
+    </button>
+    <button class="nav-btn" data-page="flashcards" onclick="navigateTo('flashcards',this)">
+      <i class="fas fa-layer-group"></i><span>Flashcards</span>
+    </button>
+    <button class="nav-btn" data-page="quiz" onclick="navigateTo('quiz',this)">
+      <i class="fas fa-brain"></i><span>Quiz</span>
+    </button>
+    <button class="nav-btn" data-page="progress" onclick="navigateTo('progress',this)">
+      <i class="fas fa-chart-line"></i><span>Progress</span>
+    </button>
+  </nav>
+  <div class="sidebar-lang">
+    <label><i class="fas fa-globe"></i> Language</label>
+    <select id="langSelect" onchange="changeLanguage(this.value)">
+      <option value="japanese">🇯🇵 Japanese</option>
+      <option value="spanish">🇪🇸 Spanish</option>
+      <option value="french">🇫🇷 French</option>
+      <option value="korean">🇰🇷 Korean</option>
+      <option value="german">🇩🇪 German</option>
+      <option value="mandarin">🇨🇳 Mandarin</option>
+    </select>
+  </div>
+  <div class="sidebar-streak">
+    <span class="streak-fire">🔥</span>
+    <div>
+      <div class="streak-num" id="sideStreakNum">0</div>
+      <div class="streak-lbl">Day Streak</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════ MOBILE TOPBAR ════════ -->
+<header class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  <div class="topbar-logo">🌸 LinguaBloom</div>
+  <div class="topbar-xp" id="topbarXP">⭐ 0 XP</div>
+</header>
+
+<!-- ════════ MAIN CONTENT ════════ -->
+<main class="main-wrap" id="mainWrap">
+
+  <!-- ─────── PAGE: DASHBOARD ─────── -->
+  <section class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Good day, Learner! 👋</h1>
+        <p class="page-sub">Keep your streak alive and learn something new today.</p>
+      </div>
+      <div class="xp-badge" id="xpBadge">⭐ <span id="xpCount">0</span> XP</div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-grid">
+      <div class="stat-card sc-words">
+        <div class="stat-icon">📖</div>
+        <div class="stat-body">
+          <div class="stat-val" id="statWords">0</div>
+          <div class="stat-lbl">Words Learned</div>
+        </div>
+        <div class="stat-ring"></div>
+      </div>
+      <div class="stat-card sc-phrases">
+        <div class="stat-icon">💬</div>
+        <div class="stat-body">
+          <div class="stat-val" id="statPhrases">0</div>
+          <div class="stat-lbl">Phrases Learned</div>
+        </div>
+        <div class="stat-ring"></div>
+      </div>
+      <div class="stat-card sc-sentences">
+        <div class="stat-icon">📝</div>
+        <div class="stat-body">
+          <div class="stat-val" id="statSentences">0</div>
+          <div class="stat-lbl">Sentences Learned</div>
+        </div>
+        <div class="stat-ring"></div>
+      </div>
+      <div class="stat-card sc-quiz">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-body">
+          <div class="stat-val" id="statQuiz">0%</div>
+          <div class="stat-lbl">Quiz Avg Score</div>
+        </div>
+        <div class="stat-ring"></div>
+      </div>
+    </div>
+
+    <!-- DAILY PROGRESS -->
+    <div class="daily-card">
+      <div class="daily-header">
+        <h3><i class="fas fa-sun"></i> Today's Goal</h3>
+        <span class="daily-pct" id="dailyPct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="dailyBar" style="width:0%"></div>
+        <div class="progress-glow" id="dailyGlow" style="width:0%"></div>
+      </div>
+      <div class="daily-steps">
+        <div class="step-item" id="stepWords"><span class="step-dot"></span>Learn 5 Words</div>
+        <div class="step-item" id="stepPhrases"><span class="step-dot"></span>Learn 3 Phrases</div>
+        <div class="step-item" id="stepQuiz"><span class="step-dot"></span>Complete a Quiz</div>
+      </div>
+    </div>
+
+    <!-- QUICK CATEGORIES -->
+    <h2 class="section-title">Quick Start ✨</h2>
+    <div class="categories-grid">
+      <div class="cat-card cc-vocab" onclick="quickStart('words')">
+        <div class="cat-anim">📖</div>
+        <h3>Vocabulary</h3>
+        <p>Learn new words with meanings</p>
+        <div class="cat-count" id="catWordCount">0 learned</div>
+        <button class="cat-btn">Start <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="cat-card cc-phrase" onclick="quickStart('phrases')">
+        <div class="cat-anim">💬</div>
+        <h3>Phrases</h3>
+        <p>Master everyday expressions</p>
+        <div class="cat-count" id="catPhraseCount">0 learned</div>
+        <button class="cat-btn">Start <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="cat-card cc-sentence" onclick="quickStart('sentences')">
+        <div class="cat-anim">📝</div>
+        <h3>Sentences</h3>
+        <p>Build full sentence structures</p>
+        <div class="cat-count" id="catSentenceCount">0 learned</div>
+        <button class="cat-btn">Start <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="cat-card cc-grammar" onclick="quickStart('grammar')">
+        <div class="cat-anim">📐</div>
+        <h3>Grammar</h3>
+        <p>Master language rules</p>
+        <div class="cat-count">Coming soon</div>
+        <button class="cat-btn">Explore <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="cat-card cc-convo" onclick="quickStart('conversation')">
+        <div class="cat-anim">🗣️</div>
+        <h3>Conversation</h3>
+        <p>Real-world daily dialogues</p>
+        <div class="cat-count">Coming soon</div>
+        <button class="cat-btn">Explore <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="cat-card cc-quiz" onclick="navigateTo('quiz',document.querySelector('[data-page=quiz]'))">
+        <div class="cat-anim">🎯</div>
+        <h3>Quick Quiz</h3>
+        <p>Test your knowledge now</p>
+        <div class="cat-count" id="catQuizCount">0 taken</div>
+        <button class="cat-btn">Play <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+    <h2 class="section-title">Recent Activity 📋</h2>
+    <div class="activity-list" id="activityList">
+      <div class="activity-empty"><i class="fas fa-seedling"></i><p>Start learning to see your activity here!</p></div>
+    </div>
+  </section>
+
+  <!-- ─────── PAGE: LEARN ─────── -->
+  <section class="page" id="page-learn">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Learn <span id="learnLangLabel">Japanese</span> 🌸</h1>
+        <p class="page-sub">Select a category and discover new content.</p>
+      </div>
+    </div>
+
+    <!-- CATEGORY SELECTOR -->
+    <div class="learn-cats">
+      <button class="lcat-btn active" data-cat="words" onclick="selectLearnCat('words',this)">
+        <span>📖</span> Words
+      </button>
+      <button class="lcat-btn" data-cat="phrases" onclick="selectLearnCat('phrases',this)">
+        <span>💬</span> Phrases
+      </button>
+      <button class="lcat-btn" data-cat="sentences" onclick="selectLearnCat('sentences',this)">
+        <span>📝</span> Sentences
+      </button>
+    </div>
+
+    <!-- LEARN CARD -->
+    <div class="learn-area">
+      <div class="learn-card" id="learnCard">
+        <div class="learn-card-inner" id="learnCardInner">
+          <!-- Dynamically filled -->
+        </div>
+      </div>
+      <!-- PRONUNCIATION BUTTON -->
+      <div class="pronunc-wrap">
+        <button class="pronunc-btn" id="pronounceBtn" onclick="pronounceItem()">
+          <span class="speak-icon">
+            <i class="fas fa-volume-up"></i>
+            <span class="sound-wave sw1"></span>
+            <span class="sound-wave sw2"></span>
+            <span class="sound-wave sw3"></span>
+          </span>
+          <span>Pronounce</span>
+        </button>
+        <button class="mark-learned-btn" id="markLearnedBtn" onclick="markAsLearned()">
+          <i class="fas fa-check"></i> Mark as Learned
+        </button>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-card-btn" onclick="prevLearnItem()"><i class="fas fa-chevron-left"></i> Previous</button>
+        <span class="card-counter" id="learnCounter">1 / 1</span>
+        <button class="nav-card-btn" onclick="nextLearnItem()">Next <i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+
+    <!-- WORD BREAKDOWN -->
+    <div class="breakdown-area" id="breakdownArea" style="display:none">
+      <h3 class="breakdown-title">🔍 Word Breakdown</h3>
+      <div class="breakdown-grid" id="breakdownGrid"></div>
+    </div>
+  </section>
+
+  <!-- ─────── PAGE: FLASHCARDS ─────── -->
+  <section class="page" id="page-flashcards">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Flashcards 🃏</h1>
+        <p class="page-sub">Flip cards to reveal meanings and test your memory.</p>
+      </div>
+    </div>
+
+    <!-- FLASHCARD FILTER -->
+    <div class="learn-cats">
+      <button class="lcat-btn active" data-cat="words" onclick="selectFlashCat('words',this)"><span>📖</span>Words</button>
+      <button class="lcat-btn" data-cat="phrases" onclick="selectFlashCat('phrases',this)"><span>💬</span>Phrases</button>
+      <button class="lcat-btn" data-cat="sentences" onclick="selectFlashCat('sentences',this)"><span>📝</span>Sentences</button>
+      <button class="lcat-btn" data-cat="all" onclick="selectFlashCat('all',this)"><span>🌟</span>All</button>
+    </div>
+
+    <!-- FLASHCARD CONTAINER -->
+    <div class="flashcard-wrap">
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="flashcard-inner" id="flashcardInner">
+          <div class="flashcard-front" id="flashFront">
+            <div class="flash-lang-tag" id="flashLangTag">JA</div>
+            <div class="flash-content" id="flashFrontContent">Loading...</div>
+            <div class="flash-hint">Tap to reveal meaning</div>
+          </div>
+          <div class="flashcard-back" id="flashBack">
+            <div class="flash-back-icon">🇬🇧</div>
+            <div class="flash-content" id="flashBackContent">English meaning</div>
+            <div class="flash-hint">Tap to go back</div>
+          </div>
+        </div>
+      </div>
+      <!-- FLIP BUTTON -->
+      <button class="flip-btn" onclick="flipCard()">
+        <i class="fas fa-sync-alt"></i> Flip Card
+      </button>
+      <!-- RATING BUTTONS -->
+      <div class="flash-rating" id="flashRating" style="display:none">
+        <button class="rate-btn rate-hard" onclick="rateCard('hard')"><i class="fas fa-times"></i> Hard</button>
+        <button class="rate-btn rate-ok" onclick="rateCard('ok')"><i class="fas fa-minus"></i> So-So</button>
+        <button class="rate-btn rate-easy" onclick="rateCard('easy')"><i class="fas fa-check"></i> Easy</button>
+      </div>
+      <!-- NAVIGATION -->
+      <div class="nav-btns" style="margin-top:20px">
+        <button class="nav-card-btn" onclick="prevFlashcard()"><i class="fas fa-chevron-left"></i> Prev</button>
+        <span class="card-counter" id="flashCounter">1 / 1</span>
+        <button class="nav-card-btn" onclick="nextFlashcard()">Next <i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+
+    <!-- FLASHCARD PROGRESS -->
+    <div class="flash-progress-row">
+      <div class="fp-item"><span class="fp-dot fp-easy"></span><span id="fpEasy">0</span> Easy</div>
+      <div class="fp-item"><span class="fp-dot fp-ok"></span><span id="fpOk">0</span> So-So</div>
+      <div class="fp-item"><span class="fp-dot fp-hard"></span><span id="fpHard">0</span> Hard</div>
+    </div>
+  </section>
+
+  <!-- ─────── PAGE: QUIZ ─────── -->
+  <section class="page" id="page-quiz">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Quiz Time! 🎯</h1>
+        <p class="page-sub">Test your knowledge and earn XP points.</p>
+      </div>
+    </div>
+
+    <!-- QUIZ START SCREEN -->
+    <div id="quizStart">
+      <div class="quiz-modes-grid">
+        <div class="quiz-mode-card" onclick="startQuiz('mcq')">
+          <div class="qm-icon">🔤</div>
+          <h3>Multiple Choice</h3>
+          <p>Choose the correct meaning</p>
+          <span class="qm-badge">+10 XP each</span>
+        </div>
+        <div class="quiz-mode-card" onclick="startQuiz('match')">
+          <div class="qm-icon">🔗</div>
+          <h3>Word Match</h3>
+          <p>Match words to their meanings</p>
+          <span class="qm-badge">+15 XP each</span>
+        </div>
+        <div class="quiz-mode-card" onclick="startQuiz('sentence')">
+          <div class="qm-icon">📜</div>
+          <h3>Sentence Quiz</h3>
+          <p>Understand full sentences</p>
+          <span class="qm-badge">+20 XP each</span>
+        </div>
+      </div>
+      <!-- LAST SCORES -->
+      <div class="last-scores">
+        <h3><i class="fas fa-history"></i> Recent Scores</h3>
+        <div id="lastScoresList"><p class="no-scores">No quizzes taken yet. Start playing!</p></div>
+      </div>
+    </div>
+
+    <!-- QUIZ ACTIVE -->
+    <div id="quizActive" style="display:none">
+      <div class="quiz-topbar">
+        <div class="quiz-mode-label" id="quizModeLabel">Multiple Choice</div>
+        <div class="quiz-progress-wrap">
+          <div class="quiz-prog-fill" id="quizProgFill" style="width:0%"></div>
+        </div>
+        <div class="quiz-qnum" id="quizQNum">Q 1 / 10</div>
+        <div class="quiz-score-live" id="quizScoreLive">Score: 0</div>
+      </div>
+      <div class="quiz-card" id="quizCard">
+        <div class="quiz-question" id="quizQuestion">Question loads here</div>
+        <div class="quiz-answers" id="quizAnswers"></div>
+      </div>
+      <!-- MATCH MODE -->
+      <div class="match-area" id="matchArea" style="display:none">
+        <div class="match-col" id="matchLeft"></div>
+        <div class="match-col" id="matchRight"></div>
+      </div>
+    </div>
+
+    <!-- QUIZ RESULTS -->
+    <div id="quizResults" style="display:none">
+      <div class="results-card">
+        <div class="results-emoji" id="resultsEmoji">🎉</div>
+        <h2 class="results-title" id="resultsTitle">Quiz Complete!</h2>
+        <div class="results-score" id="resultsScore">0 / 0</div>
+        <div class="results-pct" id="resultsPct">0%</div>
+        <div class="results-xp" id="resultsXP">+0 XP Earned!</div>
+        <div class="results-breakdown" id="resultsBreakdown"></div>
+        <div class="results-btns">
+          <button class="btn-retry" onclick="retryQuiz()"><i class="fas fa-redo"></i> Try Again</button>
+          <button class="btn-home" onclick="navigateTo('dashboard',document.querySelector('[data-page=dashboard]'))"><i class="fas fa-home"></i> Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────── PAGE: PROGRESS ─────── -->
+  <section class="page" id="page-progress">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Your Progress 📈</h1>
+        <p class="page-sub">Track your learning journey and achievements.</p>
+      </div>
+    </div>
+
+    <!-- PROGRESS OVERVIEW -->
+    <div class="prog-overview">
+      <div class="po-card">
+        <div class="po-circle" id="poCircleWords">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" class="po-track"/>
+            <circle cx="50" cy="50" r="40" class="po-fill po-words" id="poFillWords" stroke-dasharray="0 251"/>
+          </svg>
+          <div class="po-inner"><span id="poNumWords">0</span><small>Words</small></div>
+        </div>
+        <div class="po-label">Vocabulary</div>
+      </div>
+      <div class="po-card">
+        <div class="po-circle">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" class="po-track"/>
+            <circle cx="50" cy="50" r="40" class="po-fill po-phrases" id="poFillPhrases" stroke-dasharray="0 251"/>
+          </svg>
+          <div class="po-inner"><span id="poNumPhrases">0</span><small>Phrases</small></div>
+        </div>
+        <div class="po-label">Expressions</div>
+      </div>
+      <div class="po-card">
+        <div class="po-circle">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" class="po-track"/>
+            <circle cx="50" cy="50" r="40" class="po-fill po-sents" id="poFillSents" stroke-dasharray="0 251"/>
+          </svg>
+          <div class="po-inner"><span id="poNumSents">0</span><small>Sentences</small></div>
+        </div>
+        <div class="po-label">Sentences</div>
+      </div>
+    </div>
+
+    <!-- STREAK CALENDAR -->
+    <div class="streak-section">
+      <h2 class="section-title">🔥 Learning Streak</h2>
+      <div class="streak-big">
+        <div class="streak-big-num" id="streakBigNum">0</div>
+        <div class="streak-big-lbl">Day Streak</div>
+      </div>
+      <div class="streak-calendar" id="streakCalendar"></div>
+    </div>
+
+    <!-- QUIZ HISTORY -->
+    <h2 class="section-title">📊 Quiz History</h2>
+    <div class="quiz-history-list" id="quizHistoryList">
+      <div class="activity-empty"><i class="fas fa-chart-bar"></i><p>No quizzes taken yet.</p></div>
+    </div>
+
+    <!-- ACHIEVEMENTS -->
+    <h2 class="section-title">🏅 Achievements</h2>
+    <div class="achievements-grid" id="achievementsGrid"></div>
+  </section>
+
+</main>
+
+<!-- ════════ TOAST NOTIFICATION ════════ -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">Saved!</span>
+</div>
+
+<!-- ════════ CONFETTI CANVAS ════════ -->
+<canvas id="confetti" style="position:fixed;top:0;left:0;pointer-events:none;z-index:9999;width:100%;height:100%"></canvas>
+
+<script src="app.js"></script>
+</body>
+</html>

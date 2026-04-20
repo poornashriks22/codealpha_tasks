@@ -1,0 +1,680 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Poorna's Random Quote Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #6c63ff;
+      --primary-dark: #574fd6;
+      --primary-light: #ede9ff;
+      --accent: #ff6584;
+      --text-dark: #1a1a2e;
+      --text-mid: #4a4a6a;
+      --text-light: #8888aa;
+      --white: #ffffff;
+      --card-bg: rgba(255,255,255,0.72);
+      --shadow: 0 24px 64px rgba(108,99,255,0.18), 0 4px 16px rgba(0,0,0,0.08);
+      --radius: 28px;
+      --transition: 0.38s cubic-bezier(.4,0,.2,1);
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #e0d7ff 0%, #f0e6ff 30%, #fce4ec 70%, #e8f4fd 100%);
+      background-attachment: fixed;
+      padding: 24px 16px;
+      overflow-x: hidden;
+    }
+
+    /* Floating background blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 0;
+      animation: float 8s ease-in-out infinite;
+    }
+    .blob-1 { width: 420px; height: 420px; background: #a78bfa; top: -100px; left: -120px; animation-delay: 0s; }
+    .blob-2 { width: 340px; height: 340px; background: #f9a8d4; bottom: -80px; right: -80px; animation-delay: 3s; }
+    .blob-3 { width: 260px; height: 260px; background: #67e8f9; top: 40%; left: 60%; animation-delay: 5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-28px) scale(1.04); }
+    }
+
+    /* App wrapper */
+    .app {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 720px;
+      gap: 0;
+    }
+
+    /* Header */
+    .app-header {
+      text-align: center;
+      margin-bottom: 32px;
+      animation: slideDown 0.6s ease both;
+    }
+
+    .app-header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 14px;
+    }
+
+    .app-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(26px, 5vw, 42px);
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .app-header h1 span {
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .app-header p {
+      margin-top: 10px;
+      color: var(--text-light);
+      font-size: 15px;
+      font-weight: 400;
+    }
+
+    /* Quote Card */
+    .quote-card {
+      width: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255,255,255,0.6);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 52px 52px 44px;
+      position: relative;
+      overflow: hidden;
+      animation: slideUp 0.6s 0.15s ease both;
+    }
+
+    .quote-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .quote-card::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; right: -60px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(108,99,255,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    /* Opening quotation mark */
+    .quote-icon {
+      font-family: 'Playfair Display', serif;
+      font-size: 120px;
+      line-height: 0.7;
+      color: var(--primary);
+      opacity: 0.15;
+      position: absolute;
+      top: 32px;
+      left: 44px;
+      font-weight: 700;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Quote content wrapper — animated */
+    .quote-content {
+      position: relative;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .quote-content.fade-out {
+      animation: fadeOut 0.22s ease forwards;
+    }
+
+    .quote-content.fade-in {
+      animation: fadeInUp 0.42s ease forwards;
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateY(-12px); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .quote-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(18px, 3vw, 26px);
+      line-height: 1.65;
+      color: var(--text-dark);
+      font-style: italic;
+      position: relative;
+      padding-left: 12px;
+      margin-bottom: 28px;
+    }
+
+    .quote-divider {
+      width: 48px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px;
+      margin-bottom: 18px;
+    }
+
+    .quote-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-style: normal;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(108,99,255,0.3);
+    }
+
+    .author-info .author-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-dark);
+      font-style: normal;
+      letter-spacing: 0.01em;
+    }
+
+    .author-info .author-label {
+      font-size: 12px;
+      color: var(--text-light);
+      font-weight: 400;
+    }
+
+    /* Quote counter */
+    .quote-counter {
+      position: absolute;
+      top: 20px;
+      right: 28px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-light);
+      background: var(--primary-light);
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+
+    /* Category tag */
+    .quote-tag {
+      position: absolute;
+      bottom: 20px;
+      right: 28px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 4px 10px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* Actions row */
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+      animation: slideUp 0.6s 0.3s ease both;
+    }
+
+    /* Primary Button */
+    .btn-new {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: 0 6px 24px rgba(108,99,255,0.38);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-new::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18), transparent);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .btn-new:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(108,99,255,0.48); }
+    .btn-new:hover::before { opacity: 1; }
+    .btn-new:active { transform: translateY(0px) scale(0.97); box-shadow: 0 4px 12px rgba(108,99,255,0.3); }
+
+    .btn-new .btn-icon {
+      width: 22px; height: 22px;
+      background: rgba(255,255,255,0.22);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      transition: transform 0.5s ease;
+    }
+
+    .btn-new:hover .btn-icon { transform: rotate(180deg); }
+
+    /* Icon buttons */
+    .btn-icon-only {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(108,99,255,0.25);
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(10px);
+      color: var(--primary);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .btn-icon-only:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      transform: scale(1.08);
+    }
+
+    .btn-icon-only:active { transform: scale(0.95); }
+    .btn-icon-only.liked { background: #ffe4e6; border-color: #fb7185; color: #fb7185; }
+
+    /* Progress dots */
+    .progress-dots {
+      display: flex;
+      gap: 6px;
+      margin-top: 20px;
+      animation: slideUp 0.6s 0.4s ease both;
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(108,99,255,0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: var(--primary);
+      width: 22px;
+      border-radius: 4px;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 32px;
+      text-align: center;
+      color: var(--text-light);
+      font-size: 13px;
+      animation: slideUp 0.6s 0.5s ease both;
+    }
+
+    /* Animations */
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .quote-card { padding: 40px 28px 36px; }
+      .quote-icon { font-size: 80px; top: 20px; left: 24px; }
+      .actions { gap: 10px; }
+      .btn-new { padding: 13px 26px; font-size: 14px; }
+    }
+
+    @media (max-width: 380px) {
+      .quote-card { padding: 32px 20px 28px; }
+    }
+
+    /* Ripple effect */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      transform: scale(0);
+      animation: ripple 0.55s linear;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--text-dark);
+      color: white;
+      padding: 10px 22px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 999;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="app">
+    <!-- Header -->
+    <div class="app-header">
+      <div class="badge">🚀 Spark of the Day </div>
+      <h1>Poorna's <span>QuoteHub</span></h1>
+      <p>📚 Read 💭 Reflect 🔄 Repeat</p>
+    </div>
+
+    <!-- Quote Card -->
+    <div class="quote-card" id="quoteCard">
+      <div class="quote-icon">"</div>
+      <span class="quote-counter" id="quoteCounter">1 / 30</span>
+
+      <div class="quote-content fade-in" id="quoteContent">
+        <p class="quote-text" id="quoteText">Loading an inspiring quote just for you...</p>
+        <div class="quote-divider"></div>
+        <div class="quote-author">
+          <div class="author-avatar" id="authorAvatar">?</div>
+          <div class="author-info">
+            <div class="author-name" id="authorName">Author</div>
+            <div class="author-label">Philosopher</div>
+          </div>
+        </div>
+      </div>
+
+      <span class="quote-tag" id="quoteTag">Motivation</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn-icon-only" id="btnLike" title="Like this quote">♡</button>
+      <button class="btn-new" id="btnNew">
+        <span class="btn-icon">↻</span>
+        New Quote
+      </button>
+      <button class="btn-icon-only" id="btnCopy" title="Copy quote">⎘</button>
+    </div>
+
+    <!-- Progress dots -->
+    <div class="progress-dots" id="progressDots"></div>
+
+    <div class="footer">Click "New Quote" or press <kbd style="background:rgba(0,0,0,0.07);padding:2px 7px;border-radius:5px;font-family:monospace">Space</kbd> for a new quote</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ─── TypeScript-style interfaces (compiled to JS) ───────────────────────
+    // interface Quote { text: string; author: string; category: string; }
+
+    const quotes = [
+      { text: "The only way to do great work is to love what you do.", author: "Steve Jobs", category: "Passion" },
+      { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein", category: "Resilience" },
+      { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius", category: "Persistence" },
+      { text: "Life is what happens when you're busy making other plans.", author: "John Lennon", category: "Life" },
+      { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt", category: "Dreams" },
+      { text: "Spread love everywhere you go. Let no one ever come to you without leaving happier.", author: "Mother Teresa", category: "Love" },
+      { text: "When you reach the end of your rope, tie a knot in it and hang on.", author: "Franklin D. Roosevelt", category: "Resilience" },
+      { text: "Always remember that you are absolutely unique. Just like everyone else.", author: "Margaret Mead", category: "Identity" },
+      { text: "Don't judge each day by the harvest you reap but by the seeds that you plant.", author: "Robert Louis Stevenson", category: "Growth" },
+      { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela", category: "Courage" },
+      { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney", category: "Action" },
+      { text: "You will face many defeats in life, but never let yourself be defeated.", author: "Maya Angelou", category: "Courage" },
+      { text: "In the end, it's not the years in your life that count. It's the life in your years.", author: "Abraham Lincoln", category: "Life" },
+      { text: "Never let the fear of striking out keep you from playing the game.", author: "Babe Ruth", category: "Courage" },
+      { text: "Life is either a daring adventure or nothing at all.", author: "Helen Keller", category: "Adventure" },
+      { text: "Many of life's failures are people who did not realize how close they were to success when they gave up.", author: "Thomas A. Edison", category: "Persistence" },
+      { text: "You have brains in your head. You have feet in your shoes. You can steer yourself any direction you choose.", author: "Dr. Seuss", category: "Empowerment" },
+      { text: "If life were predictable it would cease to be life, and be without flavor.", author: "Eleanor Roosevelt", category: "Life" },
+      { text: "If you look at what you have in life, you'll always have more.", author: "Oprah Winfrey", category: "Gratitude" },
+      { text: "If you set your goals ridiculously high and it's a failure, you will fail above everyone else's success.", author: "James Cameron", category: "Ambition" },
+      { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar", category: "Action" },
+      { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt", category: "Belief" },
+      { text: "Act as if what you do makes a difference. It does.", author: "William James", category: "Purpose" },
+      { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill", category: "Resilience" },
+      { text: "Happiness is not something readymade. It comes from your own actions.", author: "Dalai Lama", category: "Happiness" },
+      { text: "If you're offered a seat on a rocket ship, don't ask what seat! Just get on.", author: "Sheryl Sandberg", category: "Opportunity" },
+      { text: "First, have a definite, clear practical ideal; a goal, an objective.", author: "Aristotle", category: "Goal" },
+      { text: "We may encounter many defeats but we must not be defeated.", author: "Maya Angelou", category: "Perseverance" },
+      { text: "The secret of getting ahead is getting started.", author: "Mark Twain", category: "Action" },
+      { text: "It always seems impossible until it's done.", author: "Nelson Mandela", category: "Motivation" },
+    ];
+
+    // ─── State ───────────────────────────────────────────────────────────────
+    let currentIndex = -1;
+    let likedQuotes = new Set();
+
+    // ─── DOM refs ────────────────────────────────────────────────────────────
+    const quoteText    = document.getElementById('quoteText');
+    const authorName   = document.getElementById('authorName');
+    const authorAvatar = document.getElementById('authorAvatar');
+    const quoteContent = document.getElementById('quoteContent');
+    const quoteCounter = document.getElementById('quoteCounter');
+    const quoteTag     = document.getElementById('quoteTag');
+    const btnNew       = document.getElementById('btnNew');
+    const btnLike      = document.getElementById('btnLike');
+    const btnCopy      = document.getElementById('btnCopy');
+    const progressDots = document.getElementById('progressDots');
+    const toast        = document.getElementById('toast');
+
+    // ─── Build progress dots (first 8 quotes) ───────────────────────────────
+    const DOT_COUNT = 8;
+    for (let i = 0; i < DOT_COUNT; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      dot.addEventListener('click', () => showQuoteAt(i * Math.floor(quotes.length / DOT_COUNT)));
+      progressDots.appendChild(dot);
+    }
+
+    function updateDots(idx) {
+      const dots = progressDots.querySelectorAll('.dot');
+      const activeDot = Math.floor(idx / Math.floor(quotes.length / DOT_COUNT));
+      dots.forEach((d, i) => d.classList.toggle('active', i === activeDot));
+    }
+
+    // ─── Toast helper ────────────────────────────────────────────────────────
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    // ─── Show a quote by index ───────────────────────────────────────────────
+    function showQuoteAt(index) {
+      const quote = quotes[index];
+      currentIndex = index;
+
+      // Fade out
+      quoteContent.classList.remove('fade-in');
+      quoteContent.classList.add('fade-out');
+
+      setTimeout(() => {
+        quoteText.textContent = `"${quote.text}"`;
+        authorName.textContent = quote.author;
+        authorAvatar.textContent = quote.author.charAt(0).toUpperCase();
+        quoteCounter.textContent = `${index + 1} / ${quotes.length}`;
+        quoteTag.textContent = quote.category;
+
+        // Like state
+        btnLike.classList.toggle('liked', likedQuotes.has(index));
+        btnLike.textContent = likedQuotes.has(index) ? '♥' : '♡';
+
+        updateDots(index);
+
+        // Fade in
+        quoteContent.classList.remove('fade-out');
+        quoteContent.classList.add('fade-in');
+      }, 220);
+    }
+
+    // ─── Get next random quote (no consecutive repeat) ───────────────────────
+    function getNextIndex() {
+      if (quotes.length === 1) return 0;
+      let next;
+      do { next = Math.floor(Math.random() * quotes.length); }
+      while (next === currentIndex);
+      return next;
+    }
+
+    function showNextQuote() { showQuoteAt(getNextIndex()); }
+
+    // ─── Ripple effect ───────────────────────────────────────────────────────
+    function createRipple(event, btn) {
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      const size = Math.max(btn.clientWidth, btn.clientHeight);
+      const rect = btn.getBoundingClientRect();
+      ripple.style.width  = ripple.style.height = size + 'px';
+      ripple.style.left   = (event.clientX - rect.left - size / 2) + 'px';
+      ripple.style.top    = (event.clientY - rect.top  - size / 2) + 'px';
+      btn.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    }
+
+    // ─── Event Listeners ─────────────────────────────────────────────────────
+    btnNew.addEventListener('click', (e) => {
+      createRipple(e, btnNew);
+      showNextQuote();
+    });
+
+    btnLike.addEventListener('click', () => {
+      if (currentIndex < 0) return;
+      if (likedQuotes.has(currentIndex)) {
+        likedQuotes.delete(currentIndex);
+        btnLike.textContent = '♡';
+        btnLike.classList.remove('liked');
+        showToast('Removed from favorites');
+      } else {
+        likedQuotes.add(currentIndex);
+        btnLike.textContent = '♥';
+        btnLike.classList.add('liked');
+        showToast('❤️ Added to favorites!');
+      }
+    });
+
+    btnCopy.addEventListener('click', () => {
+      if (currentIndex < 0) return;
+      const q = quotes[currentIndex];
+      const text = `"${q.text}" — ${q.author}`;
+      navigator.clipboard.writeText(text)
+        .then(() => showToast('📋 Quote copied to clipboard!'))
+        .catch(() => {
+          // Fallback for older browsers
+          const ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta);
+          ta.select(); document.execCommand('copy');
+          ta.remove();
+          showToast('📋 Copied!');
+        });
+    });
+
+    // Keyboard shortcut: Space = new quote
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && e.target === document.body) {
+        e.preventDefault();
+        showNextQuote();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && document.activeElement === document.body) {
+        btnCopy.click();
+      }
+    });
+
+    // ─── Init ────────────────────────────────────────────────────────────────
+    showQuoteAt(getNextIndex());
+  </script>
+</body>
+</html>
